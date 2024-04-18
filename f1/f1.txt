@@ -1,0 +1,50 @@
+EM0G6P
+
+//gyümülcs preprocesszor:
+# 0 "gy.cpp"
+# 0 "<built-in>"
+# 0 "<command-line>"
+# 1 "/usr/include/stdc-predef.h" 1 3 4
+# 0 "<command-line>" 2
+# 1 "gy.cpp"
+
+
+
+0,1,1,2,0,0
+
+//output for command $ g++ -E main3.cpp
+# 0 "main3.cpp"
+# 0 "<built-in>"
+# 0 "<command-line>"
+# 1 "/usr/include/stdc-predef.h" 1 3 4
+# 0 "<command-line>" 2
+# 1 "main3.cpp"
+# 1 "bar.h" 1
+
+
+
+void bar() { }
+# 2 "main3.cpp" 2
+
+int main() {
+        return 0;
+}
+
+//output for command $ g++ -Wall -o warnings warnings.cpp (ez az amit vártunk, hiszen 'a' nincs inicializálva)
+warnings.cpp: In function ‘int main()’:
+warnings.cpp:4:22: warning: ‘a’ is used uninitialized [-Wuninitialized]
+    4 |         std::cout << a << std::endl;
+      |                      ^
+warnings.cpp:3:13: note: ‘a’ was declared here
+    3 |         int a;
+      |             ^
+
+//auto.cpp
+c++11-nél régebbi std flaggal nem fordul le.
+auto.cpp: In function ‘int main()’:
+auto.cpp:4:14: error: ‘i’ does not name a type
+    4 |         auto i = 10 + 2;
+      |              ^
+auto.cpp:5:22: error: ‘i’ was not declared in this scope
+    5 |         std::cout << i << std::endl;
+      |                      ^

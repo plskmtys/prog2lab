@@ -1,0 +1,4 @@
+#define ALMA 0
+#define KORTE 1
+#define SZILVA 2
+ALMA,KORTE,KORTE,SZILVA,ALMA,ALM
