@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+ <comment>
+/// \file
+/// \brief ladaaapp nyelvi lokalizacioja.
+ </comment>
+ <messages>
+   <message id='TOMEG'>Tömeg:</message>
+
+   <message id='HOZZAAD'>Hozzáad</message>
+
+ </messages>
+

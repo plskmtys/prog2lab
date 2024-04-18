@@ -1,0 +1,14 @@
+#!/bin/bash
+
+APPNAME=ladaapp.wt
+DOCROOT=`pwd`
+PATH_TO_SCRIPT=$(cd ${0%/*} && echo $PWD/${0##*/})
+PREFIX=`dirname "$PATH_TO_SCRIPT"`
+
+# Required until wthttp accepts a "--approot path" parameter
+cd $PREFIX
+
+echo appdir: $PREFIX
+echo appname: $PREFIX/$APPNAME
+echo docroot: $DOCROOT
+$PREFIX/$APPNAME --docroot $DOCROOT --http-port 8080 --http-addr ::0 $@

@@ -1,0 +1,6 @@
+#
+# .xsessionrc
+#
+x-terminal-emulator -geometry 80x24+10+10 -ls -title "$VNCDESKTOP Desktop" &
+xeyes -geometry 50x50-50+0 &
+

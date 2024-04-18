@@ -1,0 +1,181 @@
+Közös alkönyvtárak: lab_13/img és lab_13_meg/img
+diff -upN lab_13/ladaapp.cpp lab_13_meg/ladaapp.cpp
+--- lab_13/ladaapp.cpp	2015-04-26 10:28:01.056830000 +0200
++++ lab_13_meg/ladaapp.cpp	2015-04-26 10:03:17.296830000 +0200
+@@ -14,6 +14,7 @@
+ #include <Wt/WIntValidator>
+ #include <Wt/WPushButton>
+ #include <Wt/WComboBox>
++#include <Wt/WSound>
+ 
+ #include "ladawidget.h"
+ #include "tortadiagram.h"
+@@ -27,6 +28,10 @@ class LadaApplication : public WApplicat
+   LadaWidget *ladak;     /**< A ladak tablazatos formaban a weboldalon. */
+   WLineEdit *tomegLine;  /**< Tomeg beviteli mezo. */
+   // a lokalis valtozok meg bovulhetnek
++  WLineEdit *maxLine;    /**< Max beviteli mezo. */
++  WComboBox *combo;      /**< combo beviteli mezo. */
++  WSound *bumm;          /**< Hangeffekt. */
++
+ 
+   /** Segedfuggveny: Szovegmezo tartalmanak int-te konvertalasa. 
+    */
+@@ -42,10 +47,12 @@ class LadaApplication : public WApplicat
+    */
+   void hozzaad() {
+      int tomeg = lineToint(tomegLine);
+-     int max = 10;	// it kell kiolvasnia a max beviteli mezot
++     int max = lineToint(maxLine);
+      std::ostringstream ss;
+      ss << ++db << ". lada (" << tomeg << ";" << max << ")";
++     size_t elotte=ladak->magassag();
+      ladak->hozzaad(*new Lada(ss.str(), tomeg, max));
++     if (ladak->magassag() != elotte+1) bumm->play();
+   }
+ 
+   /** A tomeg szovegmezo valtozasanak esemenykezeloje. Ujra kell rajzolni 
+@@ -56,6 +63,16 @@ class LadaApplication : public WApplicat
+   }
+ 
+   // Celszeruen Ide kerul a comboBox (nyelvvalaszto) esemenykezeloje
++  void nyelvValtozott() {
++     switch(combo->currentIndex()) {
++        case 0:
++          setLocale("hu");
++        break;
++        case 1:
++          setLocale("en");
++        break;
++     }
++  }
+ 
+ public:
+   /** Konstruktor. 
+@@ -95,26 +112,25 @@ LadaApplication::LadaApplication(const W
+   WPushButton* button = new WPushButton(WString::tr("HOZZAAD"), panel->elementAt(2,0));
+ 
+   // Ide jon majd a tobbi felhasznaloi elem: a masik beviteli mezo
+-//  label = new WLabel(WString::tr("MAX"), panel->elementAt(1,0)); // felirat (Max)
+-// ...
++  label = new WLabel(WString::tr("MAX"), panel->elementAt(1,0)); // felirat (Max)
++  maxLine = new WLineEdit("10", panel->elementAt(1,0));// egysoros editbox
++  maxLine->setValidator(new WIntValidator(1, 200));	// 0 es 200 kozott lehet az erteke
++  label->setBuddy(maxLine);				// a felirat melle teszuk 
+ 
+   // ide jon a combobox letrehozasa
+-//  combo = new WComboBox(panel->elementAt(3, 0));       	// panel 3. sora
+-// ..
+-
+-
+-
+-
++  combo = new WComboBox(panel->elementAt(3, 0));       	// panel 3. sora
++  combo->addItem("hu");                             	// kitöltjük 0. = hu
++  combo->addItem("en");                             	// 1. = en
++  combo->setCurrentIndex(0);                        	// 0. kivalasztása
++  combo->activated().connect(this, &LadaApplication::nyelvValtozott); // eseménykezelő bekötese
+ 
+   // Ide jon a tortadiagram letrehozasa
+-
+-
+-
+-
++  new Tortadiagram(ladak, layout->elementAt(0,2));
+   
+   // esemenykezelo fuggvenyek bekotese
+   button->clicked().connect(this, &LadaApplication::hozzaad); // nyomogomb megnyomasa
+   tomegLine->keyWentUp().connect(this, &LadaApplication::tomegValtozott); // billentyu felengedese az editboxban
++  bumm = new WSound("img/boom23.mp3");
+ }
+ 
+ /* 
+diff -upN lab_13/ladaapp_en.xml lab_13_meg/ladaapp_en.xml
+--- lab_13/ladaapp_en.xml	1970-01-01 01:00:00.000000000 +0100
++++ lab_13_meg/ladaapp_en.xml	2015-04-26 08:05:04.668830000 +0200
+@@ -0,0 +1,18 @@
++<?xml version="1.0" encoding="UTF-8"?>
++ <comment>
++/// \file
++/// \brief ladaaapp nyelvi lokalizacioja.
++ </comment>
++ <messages>
++   <message id='TOMEG'>Mass:</message>
++
++   <message id='MAX'>Max:</message>
++
++   <message id='GYENGE'>Weak:</message>
++
++   <message id='EROS'>Strong:</message>
++
++   <message id='HOZZAAD'>Add</message>
++
++ </messages>
++
+diff -upN lab_13/ladaapp.xml lab_13_meg/ladaapp.xml
+--- lab_13/ladaapp.xml	2015-04-26 10:28:01.056830000 +0200
++++ lab_13_meg/ladaapp.xml	2015-04-26 08:05:04.668830000 +0200
+@@ -6,6 +6,12 @@
+  <messages>
+    <message id='TOMEG'>Tömeg:</message>
+ 
++   <message id='MAX'>Max:</message>
++
++   <message id='GYENGE'>Gyenge:</message>
++
++   <message id='EROS'>Erős:</message>
++
+    <message id='HOZZAAD'>Hozzáad</message>
+ 
+  </messages>
+diff -upN lab_13/ladawidget.cpp lab_13_meg/ladawidget.cpp
+--- lab_13/ladawidget.cpp	2015-04-26 10:28:01.040830000 +0200
++++ lab_13_meg/ladawidget.cpp	2015-04-26 08:05:04.668830000 +0200
+@@ -11,7 +11,17 @@
+ #include "ladawidget.h"
+ 
+ using namespace Wt;
+-LadaWidget::LadaWidget(WContainerWidget* parent)  : WTable(parent) {} 
++LadaWidget::LadaWidget(WContainerWidget* parent)  : WTable(parent), 
++                                                   WStandardItemModel(parent) // StandardItemModell inic is kell !
++{
++    // megjelenitendo adatok létrehozása
++    WStandardItemModel::insertColumns(WStandardItemModel::columnCount(), 2); // ket oszlopa lesz
++    WStandardItemModel::insertRows(WStandardItemModel::rowCount(), 2);       // es ket sora
++    WStandardItemModel::setData(0, 0, WString(tr("EROS")));                  // EROS ladak sora
++    WStandardItemModel::setData(0, 1, 5);
++    WStandardItemModel::setData(1, 0, WString(tr("GYENGE")));                // GYENGE ladak sora
++    WStandardItemModel::setData(1, 1, 0);
++} 
+ 
+ void LadaWidget::hozzaad(Lada l) { 
+     rarak(l);
+@@ -37,6 +47,8 @@ void LadaWidget::rajzol(int t) {
+         }
+        
+         l->setImage(kep);
++	WStandardItemModel::setData(0, 1, eros);
++	WStandardItemModel::setData(1, 1, gyenge);
+     }
+ }
+ 
+diff -upN lab_13/ladawidget.h lab_13_meg/ladawidget.h
+--- lab_13/ladawidget.h	2015-04-26 10:28:01.040830000 +0200
++++ lab_13_meg/ladawidget.h	2015-04-26 08:05:04.672830000 +0200
+@@ -8,12 +8,13 @@
+ 
+ #include <Wt/WContainerWidget>
+ #include <Wt/WTable>
++#include <Wt/WStandardItemModel>
+ 
+ #include "ladak.h"
+ 
+ /** A ladakbol epitett oszlopot reprezentalo webes kezeloelem (widget).
+  */
+-class LadaWidget : public Wt::WTable, public LadaOszlop {
++class LadaWidget : public Wt::WTable, public Wt::WStandardItemModel, public LadaOszlop {
+ public:
+   /** Konstruktor. 
+    */
+Közös alkönyvtárak: lab_13/resources és lab_13_meg/resources
+Közös alkönyvtárak: lab_13/.svn és lab_13_meg/.svn
