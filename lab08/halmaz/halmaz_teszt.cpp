@@ -4,7 +4,7 @@
  */
 
 #ifndef CPORTA
-#define ELKESZULT 0
+#define ELKESZULT 4
 #endif
 
 /**
@@ -29,7 +29,7 @@
 #include "myset.hpp"
 
 #ifndef ELKESZULT
-#define ELKESZULT 2      // ha nem definiálta a myset.hpp-ben JPORTA-ra történő feltöltéskor akkor legyen 2
+#define ELKESZULT 4      // ha nem definiálta a myset.hpp-ben JPORTA-ra történő feltöltéskor akkor legyen 2
 #endif
 
 /// Tagfüggvények létezését tesztelő sablonok generálása nem fontos megértenie

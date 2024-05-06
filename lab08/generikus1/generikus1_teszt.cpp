@@ -10,7 +10,7 @@
  * ELKESZULT == 1 estén az Ön által elkészítendő Alaptípus osztálysablont próbálja ki.
  * ELKESZULT >= 2 esetén pedig egy egyszerű függvénysablont kell elkészítenie.
 */
-#define ELKESZULT 0
+#define ELKESZULT 2
 
 #include <iostream>
 #include "integer.h"
@@ -27,7 +27,8 @@
 
 
 /// Ebből a függvényből kell sablont készíteni ELKESZULT >= 2 esetén (l. útmutató)
-void kiir(Integer* first, Integer* last, std::ostream& os = std::cout) {
+template <typename T>
+void kiir(T first, T last, std::ostream& os = std::cout) {
     while (first != last)
         os << *first++ << ' ';
     os << std::endl;

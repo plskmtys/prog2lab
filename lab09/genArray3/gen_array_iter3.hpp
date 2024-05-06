@@ -122,7 +122,11 @@ public:
         }
 
         /// post-inkremens
-        iterator operator++(int);       // ezt kell elkészítenie
+        iterator operator++(int) {      // ha van int paraméter, akkor post... egyébként pre...
+          iterator tmp = *this;       // növelés előtti értékkel kell visszatérni
+          if (idx != p->siz) ++idx;   // nem engedjük túllépni
+          return tmp;
+        }       // ezt kell elkészítenie
 
         /// egyenlőtlenség vizsgálat
         /// @param i - jobboldali operandus
